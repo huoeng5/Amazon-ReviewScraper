@@ -1,0 +1,26 @@
+{
+  "name": "iceman-amazon-review-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.js",
+  "scripts": {
+    "amazon": "node src/amazon-poc.js",
+    "amazon:help": "node src/amazon-poc.js --help",
+    "amazon:prepare": "node src/amazon-poc.js --prepare-session --headful --profile-dir .browser-profiles/amazon-jp",
+    "rakuten": "node src/rakuten-poc.js",
+    "rakuten:help": "node src/rakuten-poc.js --help",
+    "yahoo": "node src/yahoo-poc.js",
+    "yahoo:help": "node src/yahoo-poc.js --help",
+    "export": "node src/export-sqlite.js",
+    "export:help": "node src/export-sqlite.js --help",
+    "desktop": "npm run --prefix ui build && electron .",
+    "desktop:dev": "npm run --prefix ui build && electron ."
+  },
+  "dependencies": {
+    "playwright": "^1.57.0"
+  },
+  "devDependencies": {
+    "electron": "^42.0.1"
+  }
+}

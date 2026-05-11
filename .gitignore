@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+ui/node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+release/
+ui/dist/
+*.dmg
+*.exe
+*.zip
+
+# Local crawl data and generated artifacts
+data/
+input/
+output/
+outputs/
+exports/
+snapshots/
+.browser-profiles/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.csv
+*.run.json
+
+# Local docs excluded from the public repository
+AMAZON_POC_README.md
+ICEMAN_数据抓取技术任务清单.md
+ICEMAN_桌面版UI与EXE打包方案.md
+
+# OS, logs, and secrets
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
