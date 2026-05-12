@@ -1,7 +1,8 @@
 {
-  "name": "iceman-amazon-review-poc",
+  "name": "amazon-review-scraper",
   "version": "0.1.0",
   "private": true,
+  "description": "Desktop review crawler for Amazon Japan, Rakuten Ichiba, and Yahoo! Shopping.",
   "type": "module",
   "main": "desktop/main.js",
   "scripts": {
@@ -14,13 +15,79 @@
     "yahoo:help": "node src/yahoo-poc.js --help",
     "export": "node src/export-sqlite.js",
     "export:help": "node src/export-sqlite.js --help",
+    "build:ui": "npm run --prefix ui build",
+    "playwright:install:local": "cross-env PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
     "desktop": "npm run --prefix ui build && electron .",
-    "desktop:dev": "npm run --prefix ui build && electron ."
+    "desktop:dev": "npm run --prefix ui build && electron .",
+    "dist:win": "npm run build:ui && npm run playwright:install:local && electron-builder --win nsis --x64"
   },
   "dependencies": {
     "playwright": "^1.57.0"
   },
   "devDependencies": {
-    "electron": "^42.0.1"
+    "cross-env": "^10.1.0",
+    "electron": "^42.0.1",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.amazonreviewscraper.desktop",
+    "productName": "Amazon ReviewScraper",
+    "asar": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/**",
+      "src/**",
+      "ui/dist/**",
+      "package.json",
+      "node_modules/playwright/**",
+      "node_modules/playwright-core/**",
+      "!data/**",
+      "!input/**",
+      "!output/**",
+      "!outputs/**",
+      "!exports/**",
+      "!snapshots/**",
+      "!.browser-profiles/**",
+      "!release/**",
+      "!**/*.sqlite",
+      "!**/*.sqlite-*",
+      "!**/*.db",
+      "!**/*.db-*",
+      "!**/*.csv",
+      "!**/*.run.json",
+      "!AMAZON_POC_README.md",
+      "!ICEMAN_数据抓取技术任务清单.md",
+      "!ICEMAN_桌面版UI与EXE打包方案.md"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/playwright-core/.local-browsers",
+        "to": "ms-playwright",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Amazon-ReviewScraper.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Amazon ReviewScraper",
+      "deleteAppDataOnUninstall": false
+    }
   }
 }

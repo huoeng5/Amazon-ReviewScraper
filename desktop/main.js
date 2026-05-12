@@ -27,9 +27,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const UI_DIST = path.join(ROOT_DIR, 'ui', 'dist', 'index.html');
-const NODE_BIN = process.env.npm_node_execpath || process.env.NODE || 'node';
-const DEFAULT_DB_PATH = path.join(ROOT_DIR, 'data', 'iceman.sqlite');
-const DEFAULT_PROFILE_DIR = path.join(ROOT_DIR, '.browser-profiles', 'amazon-jp');
+const APP_DISPLAY_NAME = 'Amazon ReviewScraper';
+
+app.setName(APP_DISPLAY_NAME);
+
+const NODE_BIN = app.isPackaged ? process.execPath : process.env.npm_node_execpath || process.env.NODE || 'node';
+const APP_DATA_DIR = app.getPath('userData');
+const DEFAULT_DB_PATH = app.isPackaged
+  ? path.join(APP_DATA_DIR, 'iceman.sqlite')
+  : path.join(ROOT_DIR, 'data', 'iceman.sqlite');
+const DEFAULT_PROFILE_DIR = app.isPackaged
+  ? path.join(APP_DATA_DIR, 'browser-profiles', 'amazon-jp')
+  : path.join(ROOT_DIR, '.browser-profiles', 'amazon-jp');
+const DEFAULT_OUTPUT_DIR = app.isPackaged ? path.join(APP_DATA_DIR, 'output') : path.join(ROOT_DIR, 'output');
+const DEFAULT_SNAPSHOT_ROOT = app.isPackaged
+  ? path.join(APP_DATA_DIR, 'snapshots')
+  : path.join(ROOT_DIR, 'snapshots');
+const PACKAGED_PLAYWRIGHT_BROWSERS = path.join(process.resourcesPath, 'ms-playwright');
 
 let mainWindow = null;
 let activeCrawl = null;
@@ -43,7 +57,7 @@ function createWindow() {
     height: 900,
     minWidth: 1120,
     minHeight: 720,
-    title: 'ICEMAN Review Crawler',
+    title: APP_DISPLAY_NAME,
     backgroundColor: '#f8f9fa',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -125,12 +139,21 @@ function parseJsonFromStdout(stdout) {
   }
 }
 
+function childEnv() {
+  const env = { ...process.env };
+  if (app.isPackaged) {
+    env.ELECTRON_RUN_AS_NODE = '1';
+    env.PLAYWRIGHT_BROWSERS_PATH = PACKAGED_PLAYWRIGHT_BROWSERS;
+  }
+  return env;
+}
+
 function runNodeJson(scriptPath, args = []) {
   return new Promise((resolve, reject) => {
     const child = spawn(NODE_BIN, [scriptPath, ...args], {
       cwd: ROOT_DIR,
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env },
+      env: childEnv(),
     });
 
     let stdout = '';
@@ -266,6 +289,12 @@ function buildCrawlArgs(job) {
       useUrl ? job.input : job.product_id,
       '--max-pages',
       String(job.max_pages || 20),
+      '--db',
+      DEFAULT_DB_PATH,
+      '--output-dir',
+      DEFAULT_OUTPUT_DIR,
+      '--snapshot-dir',
+      path.join(DEFAULT_SNAPSHOT_ROOT, 'rakuten'),
     ];
 
     if (job.incremental) args.push('--incremental');
@@ -279,6 +308,12 @@ function buildCrawlArgs(job) {
       useUrl ? job.input : job.product_id,
       '--max-pages',
       String(job.max_pages || 20),
+      '--db',
+      DEFAULT_DB_PATH,
+      '--output-dir',
+      DEFAULT_OUTPUT_DIR,
+      '--snapshot-dir',
+      path.join(DEFAULT_SNAPSHOT_ROOT, 'yahoo-shopping'),
     ];
 
     if (job.incremental) args.push('--incremental');
@@ -291,6 +326,12 @@ function buildCrawlArgs(job) {
     useUrl ? job.input : job.product_id,
     '--max-pages',
     String(job.max_pages || 20),
+    '--db',
+    DEFAULT_DB_PATH,
+    '--output-dir',
+    DEFAULT_OUTPUT_DIR,
+    '--snapshot-dir',
+    path.join(DEFAULT_SNAPSHOT_ROOT, 'amazon-jp'),
     '--profile-dir',
     DEFAULT_PROFILE_DIR,
     '--manual-resolve',
@@ -326,7 +367,7 @@ function startNextJob() {
   const child = spawn(NODE_BIN, buildCrawlArgs(job), {
     cwd: ROOT_DIR,
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env },
+    env: childEnv(),
   });
 
   activeCrawl = {
