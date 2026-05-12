@@ -244,7 +244,7 @@ function settleRunningTask(task: Task): Task {
 function App() {
   const apiAvailable = Boolean(window.iceman);
   const [activeTaskId, setActiveTaskId] = useState('');
-  const [inputValue, setInputValue] = useState('https://www.amazon.co.jp/dp/B0DW3V6X1Q');
+  const [inputValue, setInputValue] = useState('');
   const [query, setQuery] = useState('');
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
   const [tasks, setTasks] = useState<Task[]>([]);
