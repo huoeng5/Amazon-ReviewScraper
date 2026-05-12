@@ -57,9 +57,7 @@
       "!**/*.db-*",
       "!**/*.csv",
       "!**/*.run.json",
-      "!AMAZON_POC_README.md",
-      "!ICEMAN_数据抓取技术任务清单.md",
-      "!ICEMAN_桌面版UI与EXE打包方案.md"
+      "!AMAZON_POC_README.md"
     ],
     "extraResources": [
       {
